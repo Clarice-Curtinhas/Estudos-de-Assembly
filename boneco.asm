@@ -42,8 +42,12 @@ adiante:
     mov ah, 08h
     int 21h
     cmp al, 's'
-    jne brilha
+    jne  comparar
     jmp sai
+
+comparar:
+    cmp     al, 'a'
+    JE     outro_lado
 
 brilha:
 ;Escrever uma mensagem
@@ -61,15 +65,17 @@ brilha:
         push    word[Raio]
         call    full_circle
 
-
-; cria nova bola com posição incrementada
+; cria nova bola com posição incrementada ou decrementada
         MOV		byte[cor_bola],vermelho	;circulos vermelhos
+        mov     ax, word[pos_x]
+
         add     word[pos_x], 5
-        push    word[pos_x]
+        push    word[pos_x]; cria nova bola com posição incrementada
 
         add     word[pos_y], 5
         push    word[pos_y]
 
+; raio do circulo que deve ser criado
         push    word[Raio]
         call    full_circle
 
@@ -81,10 +87,43 @@ l4:
 		INC		DL					;avanca a coluna
     	LOOP    l4
 
-
         call delay
         jmp adiante
 
+; ******************************************
+
+outro_lado:
+    ;Escrever uma mensagem
+    	MOV     CX,12				;número de caracteres
+    	MOV     BX,0
+    	MOV     DH,0				;linha 0-29
+    	MOV     DL,30				;coluna 0-79
+        INC		byte [cor]			;mudar a cor para a seguINTe
+        and     byte [cor], 0fh
+
+; apaga bola antiga
+        MOV		byte[cor_bola],pRETo	;circulos vermelhos
+        push    word[pos_x]
+        push    word[pos_y]
+        push    word[Raio]
+        call    full_circle
+
+; cria nova bola com posição incrementada ou decrementada
+        MOV		byte[cor_bola],vermelho	;circulos vermelhos
+
+        add     word[pos_x], -5
+        push    word[pos_x]
+
+        add     word[pos_y], -5
+        push    word[pos_y]
+
+        push    word[Raio]
+        call    full_circle
+        jmp     l4
+
+
+
+;********************************************
 sai:
         mov ah, 0
         mov al, [modo_anterior]
