@@ -27,15 +27,27 @@ segment code
 
 ; cria bola
         MOV		byte[cor_bola],vermelho	;circulos vermelhos
-		MOV		word[pos_x],500
-		PUSH	word[pos_x]
+		MOV		word[pos_x_bola],500
+		PUSH	word[pos_x_bola]
 
-		MOV		word[pos_y],300
-		PUSH	word[pos_y]
+		MOV		word[pos_y_bola],300
+		PUSH	word[pos_y_bola]
 
 		MOV		word[Raio],50
 		PUSH	word[Raio]
 		CALL	full_circle
+
+		;Desenhar Retas
+		PUSH	word[pos_x_bola]
+		PUSH	word[pos_y_bola]
+		PUSH	word[pos_x_bola]
+
+		MOV		AX,word[pos_y_bola]
+		add 	ax, -200
+		PUSH	AX
+
+		CALL	line
+
         jmp     l4
 
 adiante:
@@ -58,26 +70,133 @@ brilha:
         INC		byte [cor]			;mudar a cor para a seguINTe
         and     byte [cor], 0fh
 
-; apaga bola antiga
-        MOV		byte[cor_bola],pRETo	;circulos vermelhos
-        push    word[pos_x]
-        push    word[pos_y]
-        push    word[Raio]
+		; apaga bola antiga
+        MOV		byte[cor_bola],pRETo
+
+		push    word[pos_x_bola]
+		push    word[pos_y_bola]
+
+		push    word[Raio]
         call    full_circle
+
+		PUSH	word[pos_x_bola]
+		PUSH	word[pos_y_bola]
+		PUSH	word[pos_x_bola]
+
+		MOV		AX,word[pos_y_bola]
+		add 	ax, -200
+		PUSH	AX
+		CALL	line
+
+		PUSH	word[pos_x_bola]
+
+		mov		ax, word[pos_y_bola]
+		add		ax, -200
+		push 	ax
+
+		mov		ax, word[pos_x_bola]
+		add		ax, -50
+		PUSH	ax
+
+		MOV		AX,word[pos_y_bola]
+		add 	ax, -250
+		PUSH	AX
+
+		CALL	line
 
 ; cria nova bola com posição incrementada ou decrementada
-        MOV		byte[cor_bola],vermelho	;circulos vermelhos
-        mov     ax, word[pos_x]
 
-        add     word[pos_x], 5
-        push    word[pos_x]; cria nova bola com posição incrementada
+        add     word[pos_x_bola], 5
+;        add     word[pos_y_bola], 5
 
-        add     word[pos_y], 5
-        push    word[pos_y]
+		jmp 	desenha_corpo
 
-; raio do circulo que deve ser criado
-        push    word[Raio]
+outro_lado:
+    ;Escrever uma mensagem
+    	MOV     CX,12				;número de caracteres
+    	MOV     BX,0
+    	MOV     DH,0				;linha 0-29
+    	MOV     DL,30				;coluna 0-79
+        INC		byte [cor]			;mudar a cor para a seguINTe
+        and     byte [cor], 0fh
+
+		; apaga bola antiga
+        MOV		byte[cor_bola],pRETo
+
+		push    word[pos_x_bola]
+		push    word[pos_y_bola]
+
+		push    word[Raio]
         call    full_circle
+
+		PUSH	word[pos_x_bola]
+		PUSH	word[pos_y_bola]
+		PUSH	word[pos_x_bola]
+
+		MOV		AX,word[pos_y_bola]
+		add 	ax, -200
+		PUSH	AX
+		CALL	line
+
+		PUSH	word[pos_x_bola]
+
+		mov		ax, word[pos_y_bola]
+		add		ax, -200
+		push 	ax
+
+		mov		ax, word[pos_x_bola]
+		add		ax, -50
+		PUSH	ax
+
+		MOV		AX,word[pos_y_bola]
+		add 	ax, -250
+		PUSH	AX
+
+		CALL	line
+
+; cria nova bola com posição incrementada ou decrementada
+
+        add     word[pos_x_bola], -5
+;        add     word[pos_y_bola], -5
+
+; ******************************************
+
+desenha_corpo:
+		MOV		byte[cor_bola],vermelho	;circulos vermelhos
+
+		push    word[pos_x_bola]
+		push    word[pos_y_bola]
+
+		push    word[Raio]
+        call    full_circle
+
+	; desenho do corpo
+
+		PUSH	word[pos_x_bola]
+		PUSH	word[pos_y_bola]
+		PUSH	word[pos_x_bola]
+
+		MOV		AX,word[pos_y_bola]
+		add 	ax, -200
+		PUSH	AX
+		CALL	line
+	
+	; desenho dos pés
+		PUSH	word[pos_x_bola]
+
+		mov		ax, word[pos_y_bola]
+		add		ax, -200
+		push 	ax
+
+		mov		ax, word[pos_x_bola]
+		add		ax, -50
+		PUSH	ax
+
+		MOV		AX,word[pos_y_bola]
+		add 	ax, -250
+		PUSH	AX
+
+		CALL	line
 
 l4:
 		CALL	cursor
@@ -89,39 +208,6 @@ l4:
 
         call delay
         jmp adiante
-
-; ******************************************
-
-outro_lado:
-    ;Escrever uma mensagem
-    	MOV     CX,12				;número de caracteres
-    	MOV     BX,0
-    	MOV     DH,0				;linha 0-29
-    	MOV     DL,30				;coluna 0-79
-        INC		byte [cor]			;mudar a cor para a seguINTe
-        and     byte [cor], 0fh
-
-; apaga bola antiga
-        MOV		byte[cor_bola],pRETo	;circulos vermelhos
-        push    word[pos_x]
-        push    word[pos_y]
-        push    word[Raio]
-        call    full_circle
-
-; cria nova bola com posição incrementada ou decrementada
-        MOV		byte[cor_bola],vermelho	;circulos vermelhos
-
-        add     word[pos_x], -5
-        push    word[pos_x]
-
-        add     word[pos_y], -5
-        push    word[pos_y]
-
-        push    word[Raio]
-        call    full_circle
-        jmp     l4
-
-
 
 ;********************************************
 sai:
@@ -539,9 +625,11 @@ amarelo			equ		14	; 1 1 1 0 amarelo
 branco_intenso	equ		15	; 1 1 1 1 branco INTenso
 
 vel             dw      5
-pos_x           dw      200
-pos_y           dw      100
+
+pos_x_bola      dw      200
+pos_y_bola      dw      100
 Raio            dw      50
+
 cor_bola        db      branco_intenso
 
 modo_anterior	db		0
