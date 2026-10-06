@@ -25,19 +25,33 @@ segment code
     	MOV     DL,30				;coluna 0-79
 		MOV		byte[cor],azul
 
-; cria bola
-        MOV		byte[cor_bola],vermelho	;circulos vermelhos
-		MOV		word[pos_x_bola],500
+; cria boneco 1
+        MOV		byte[cor_boneco],vermelho	;circulos vermelhos
+		MOV		word[boneco_1_x],500
 
-		MOV		word[pos_y_bola],300
+		MOV		word[boneco_1_y],300
 
-		MOV		word[Raio],50
+		MOV		word[Raio],40
 
 		mov		ax, 0
 		push	ax
 		push	ax
 
-		call desenha_boneco
+		call desenha_boneco1
+
+; cria boneco 2
+		MOV		byte[cor_boneco],azul	;circulos vermelhos
+		MOV		word[boneco_2_x],100
+
+		MOV		word[boneco_2_y],300
+
+		MOV		word[Raio],40
+
+		mov		ax, 0
+		push	ax
+		push	ax
+
+		call desenha_boneco2
 
         jmp     l4
 
@@ -50,42 +64,111 @@ adiante:
 
 comparar:
     cmp     al, 'a'
-    JE     vai_para_esquerda
+    JE     vai_para_esquerda1
 	cmp		al, 'd'
-	JNE		adiante
+	JE		vai_para_direita1
 
-vai_para_direita:
-;Escrever uma mensagem
-    	MOV     CX,12				;número de caracteres
-    	MOV     BX,0
-    	MOV     DH,0				;linha 0-29
-    	MOV     DL,30				;coluna 0-79
-        INC		byte [cor]			;mudar a cor para a seguINTe
-        and     byte [cor], 0fh
+	cmp		al, 'j'
+	JE		vai_para_esquerda2
+	cmp		al, 'l'
+	JE      vai_para_direita2
+
+	jmp		adiante
+
+vai_para_direita1:
 
 ; apaga boneco antigo
-        MOV		byte[cor_bola],pRETo
+        MOV		byte[cor_boneco],pRETo
 
         mov     ax, 0
 		push 	ax
 
 		mov		ax, 0
 		push	ax
-		call	desenha_boneco
+		call	desenha_boneco1
 
 ; cria nova boneco com posição incrementada ou decrementada
 
-		MOV		byte[cor_bola],vermelho	;circulos vermelhos
+		MOV		byte[cor_boneco],vermelho	;circulos vermelhos
         mov     ax, 5
 		push 	ax
 
 		mov		ax, 0
 		push	ax
-		call	desenha_boneco
+		call	desenha_boneco1
 		jmp 	l4
 
-vai_para_esquerda:
-    ;Escrever uma mensagem
+vai_para_direita2:
+
+; apaga boneco antigo
+        MOV		byte[cor_boneco],pRETo
+
+        mov     ax, 0
+		push 	ax
+
+		mov		ax, 0
+		push	ax
+		call	desenha_boneco2
+
+; cria nova boneco com posição incrementada ou decrementada
+
+		MOV		byte[cor_boneco],azul	;circulos vermelhos
+        mov     ax, 5
+		push 	ax
+
+		mov		ax, 0
+		push	ax
+		call	desenha_boneco2
+		jmp 	l4
+
+vai_para_esquerda1:
+
+		; apaga boneco antigo
+        MOV		byte[cor_boneco],pRETo
+
+        mov     ax, 0
+		push 	ax
+
+		mov		ax, 0
+		push	ax
+		call	desenha_boneco1
+
+; cria novo boneco com posição incrementada ou decrementada
+		MOV		byte[cor_boneco],vermelho	;circulos vermelhos
+        mov     ax, -5
+		push 	ax
+
+		mov		ax, 0
+		push	ax
+		call	desenha_boneco1
+
+		jmp		 l4
+
+vai_para_esquerda2:
+
+		; apaga boneco antigo
+        MOV		byte[cor_boneco],pRETo
+
+        mov     ax, 0
+		push 	ax
+
+		mov		ax, 0
+		push	ax
+		call	desenha_boneco2
+
+; cria novo boneco com posição incrementada ou decrementada
+		MOV		byte[cor_boneco],azul	;circulos vermelhos
+        mov     ax, -5
+		push 	ax
+
+		mov		ax, 0
+		push	ax
+		call	desenha_boneco2
+
+; ******************************************
+
+l4:	
+		;Escrever uma mensagem
     	MOV     CX,12				;número de caracteres
     	MOV     BX,0
     	MOV     DH,0				;linha 0-29
@@ -93,28 +176,6 @@ vai_para_esquerda:
         INC		byte [cor]			;mudar a cor para a seguINTe
         and     byte [cor], 0fh
 
-		; apaga boneco antigo
-        MOV		byte[cor_bola],pRETo
-
-        mov     ax, 0
-		push 	ax
-
-		mov		ax, 0
-		push	ax
-		call	desenha_boneco
-
-; cria novo boneco com posição incrementada ou decrementada
-		MOV		byte[cor_bola],vermelho	;circulos vermelhos
-        mov     ax, -5
-		push 	ax
-
-		mov		ax, 0
-		push	ax
-		call	desenha_boneco
-
-; ******************************************
-
-l4:
 		CALL	cursor
     	MOV     AL,[BX+mens]
 		CALL	caracter
@@ -147,11 +208,11 @@ del1:
 
 
 ;-----------------------------------------------------------------------------
-;função desenha_boneco
+;função desenha_boneco1
 ; Parametros:
-;	PUSH soma_x_boneco; PUSH soma_y_boneco; CALL desenha_boneco;
+;	PUSH soma_x_boneco; PUSH soma_y_boneco; CALL desenha_boneco1;
 ; 	cor definida na variavel cor
-desenha_boneco:
+desenha_boneco1:
 		PUSH 	BP
 		MOV 	BP,SP
 		PUSHf
@@ -166,57 +227,57 @@ desenha_boneco:
 		MOV		BX, [BP+4]		;resgata soma_y_boneco
 
 	; incrementa a posição do boneco de acordo com os valores na pilha
-		add		word[pos_x_bola], AX
-		add		word[pos_y_bola], BX
+		add		word[boneco_1_x], AX
+		add		word[boneco_1_y], BX
 
 	; desenha a cabeça do boneco
-		push    word[pos_x_bola]
-		push    word[pos_y_bola]
+		push    word[boneco_1_x]
+		push    word[boneco_1_y]
 
 		push    word[Raio]
         call    full_circle
 
 	; desenho do corpo do boneco
 
-		PUSH	word[pos_x_bola]
-		PUSH	word[pos_y_bola]
-		PUSH	word[pos_x_bola]
+		PUSH	word[boneco_1_x]
+		PUSH	word[boneco_1_y]
+		PUSH	word[boneco_1_x]
 
-		MOV		AX,word[pos_y_bola]
+		MOV		AX,word[boneco_1_y]
 		add 	ax, -150
 		PUSH	AX
 		CALL	line
 	
 	; desenho das pernas
 	; perna esquerda
-		PUSH	word[pos_x_bola]
+		PUSH	word[boneco_1_x]
 
-		mov		ax, word[pos_y_bola]
+		mov		ax, word[boneco_1_y]
 		add		ax, -150
 		push 	ax
 
-		mov		ax, word[pos_x_bola]
+		mov		ax, word[boneco_1_x]
 		add		ax, -50
 		PUSH	ax
 
-		MOV		AX,word[pos_y_bola]
+		MOV		AX,word[boneco_1_y]
 		add 	ax, -200
 		PUSH	AX
 
 		CALL	line
 	
 	; perna direita
-		PUSH	word[pos_x_bola]
+		PUSH	word[boneco_1_x]
 
-		mov		ax, word[pos_y_bola]
+		mov		ax, word[boneco_1_y]
 		add		ax, -150
 		push 	ax
 
-		mov		ax, word[pos_x_bola]
+		mov		ax, word[boneco_1_x]
 		add		ax, 50
 		PUSH	ax
 
-		MOV		AX,word[pos_y_bola]
+		MOV		AX,word[boneco_1_y]
 		add 	ax, -200
 		PUSH	AX
 
@@ -224,34 +285,157 @@ desenha_boneco:
 
 	; desenho dos braços
 	;braço esquerdo
-		PUSH	word[pos_x_bola]
+		PUSH	word[boneco_1_x]
 
-		mov		ax, word[pos_y_bola]
+		mov		ax, word[boneco_1_y]
 		add		ax, -50
 		push 	ax
 
-		mov		ax, word[pos_x_bola]
+		mov		ax, word[boneco_1_x]
 		add		ax, -50
 		PUSH	ax
 
-		MOV		AX,word[pos_y_bola]
+		MOV		AX,word[boneco_1_y]
 		add 	ax, -100
 		PUSH	AX
 
 		CALL	line
 	
 	; braço direito
-		PUSH	word[pos_x_bola]
+		PUSH	word[boneco_1_x]
 
-		mov		ax, word[pos_y_bola]
+		mov		ax, word[boneco_1_y]
 		add		ax, -50
 		push 	ax
 
-		mov		ax, word[pos_x_bola]
+		mov		ax, word[boneco_1_x]
 		add		ax, 50
 		PUSH	ax
 
-		MOV		AX,word[pos_y_bola]
+		MOV		AX,word[boneco_1_y]
+		add 	ax, -100
+		PUSH	AX
+
+		CALL	line
+
+
+	; termina função
+		POP		DI
+		POP		SI
+		POP		DX
+		POP		CX
+		POP		BX
+		POP		AX
+		POPf
+		POP		BP
+		RET		6
+
+;-----------------------------------------------------------------------------
+;função desenha_boneco2
+; Parametros:
+;	PUSH soma_x_boneco; PUSH soma_y_boneco; CALL desenha_boneco2;
+; 	cor definida na variavel cor
+desenha_boneco2:
+		PUSH 	BP
+		MOV 	BP,SP
+		PUSHf
+		PUSH	AX
+		PUSH	BX
+		PUSH	CX
+		PUSH	DX
+		PUSH	SI
+		PUSH	DI
+
+		MOV		AX, [BP+6] 		;resgata soma_x_boneco
+		MOV		BX, [BP+4]		;resgata soma_y_boneco
+
+	; incrementa a posição do boneco de acordo com os valores na pilha
+		add		word[boneco_2_x], AX
+		add		word[boneco_2_y], BX
+
+	; desenha a cabeça do boneco
+		push    word[boneco_2_x]
+		push    word[boneco_2_y]
+
+		push    word[Raio]
+        call    full_circle
+
+	; desenho do corpo do boneco
+
+		PUSH	word[boneco_2_x]
+		PUSH	word[boneco_2_y]
+		PUSH	word[boneco_2_x]
+
+		MOV		AX,word[boneco_2_y]
+		add 	ax, -150
+		PUSH	AX
+		CALL	line
+	
+	; desenho das pernas
+	; perna esquerda
+		PUSH	word[boneco_2_x]
+
+		mov		ax, word[boneco_2_y]
+		add		ax, -150
+		push 	ax
+
+		mov		ax, word[boneco_2_x]
+		add		ax, -50
+		PUSH	ax
+
+		MOV		AX,word[boneco_2_y]
+		add 	ax, -200
+		PUSH	AX
+
+		CALL	line
+	
+	; perna direita
+		PUSH	word[boneco_2_x]
+
+		mov		ax, word[boneco_2_y]
+		add		ax, -150
+		push 	ax
+
+		mov		ax, word[boneco_2_x]
+		add		ax, 50
+		PUSH	ax
+
+		MOV		AX,word[boneco_2_y]
+		add 	ax, -200
+		PUSH	AX
+
+		CALL	line
+
+	; desenho dos braços
+	;braço esquerdo
+		PUSH	word[boneco_2_x]
+
+		mov		ax, word[boneco_2_y]
+		add		ax, -50
+		push 	ax
+
+		mov		ax, word[boneco_2_x]
+		add		ax, -50
+		PUSH	ax
+
+		MOV		AX,word[boneco_2_y]
+		add 	ax, -100
+		PUSH	AX
+
+		CALL	line
+	
+	; braço direito
+		PUSH	word[boneco_2_x]
+
+		mov		ax, word[boneco_2_y]
+		add		ax, -50
+		push 	ax
+
+		mov		ax, word[boneco_2_x]
+		add		ax, 50
+		PUSH	ax
+
+		MOV		AX,word[boneco_2_y]
 		add 	ax, -100
 		PUSH	AX
 
@@ -341,7 +525,7 @@ plot_xy:
 		PUSH	SI
 		PUSH	DI
 	    MOV     AH,0Ch
-	    MOV     AL,[cor_bola]
+	    MOV     AL,[cor_boneco]
 	    MOV     BH,0
 	    MOV     DX,479
 		SUB		DX,[BP+4]
@@ -667,11 +851,15 @@ branco_intenso	equ		15	; 1 1 1 1 branco INTenso
 
 vel             dw      5
 
-pos_x_bola      dw      200
-pos_y_bola      dw      100
 Raio            dw      50
 
-cor_bola        db      branco_intenso
+boneco_1_x      dw      200
+boneco_1_y      dw      100
+
+boneco_2_x		dw		100
+boneco_2_y 		dw		100
+
+cor_boneco        db      branco_intenso
 
 modo_anterior	db		0
 linha   		dw  	0
